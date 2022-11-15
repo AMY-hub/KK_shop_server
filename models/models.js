@@ -6,14 +6,19 @@ const User = sequelize.define('user', {
     email: {type: DataTypes.STRING, unique: true, allowNull: false},
     password: {type: DataTypes.STRING, allowNull: false},
     name: {type: DataTypes.STRING, allowNull: false},
-    lastname: {type: DataTypes.STRING, allowNull: true},
+    lastname: {type: DataTypes.STRING, allowNull: false},
     role: {type: DataTypes.STRING, defaultValue: "USER"},
-    age: {type: DataTypes.INTEGER, allowNull: true},
-    skin: {type: DataTypes.STRING, allowNull: true},
+    birthdate: {type: DataTypes.DATE, allowNull: true},
+});
+
+const Token = sequelize.define('token', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    refresh_token: {type: DataTypes.STRING, allowNull: false}
 });
 
 const Basket = sequelize.define('basket', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    temporary_key: {type: DataTypes.STRING, allowNull: true, unique: true},
 });
 
 const FavList = sequelize.define('fav_list', {
@@ -21,7 +26,8 @@ const FavList = sequelize.define('fav_list', {
 });
 
 const BasketProduct = sequelize.define('basket_product', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
 });
 
 const FavProduct = sequelize.define('fav_product', {
@@ -60,19 +66,23 @@ const SpecialSale = sequelize.define('special_sale', {
     }}
 });
 
-const SaleProduct = sequelize.define('sale_product', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
-});
-
 const Product = sequelize.define('product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, allowNull: false, unique: true},
     name_rus: {type: DataTypes.STRING, allowNull: false},
     price: {type: DataTypes.INTEGER, allowNull: false},
-    old_price: {type: DataTypes.INTEGER, allowNull: true},
     img: {type: DataTypes.STRING, allowNull: false},
     weight: {type: DataTypes.STRING, allowNull: false},
     volume: {type: DataTypes.STRING, allowNull: false},
+    orderQuantity: {type: DataTypes.INTEGER, defaultValue: 0},
+    art: {type: DataTypes.STRING(10), unique: true, allowNull: false} 
+});
+
+const Certificate = sequelize.define('certificate', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, allowNull: false, unique: true},
+    price: {type: DataTypes.INTEGER, allowNull: false},
+    img: {type: DataTypes.STRING, allowNull: false},
 });
 
 const ProductInfo = sequelize.define('product_info', {
@@ -86,24 +96,38 @@ const ProductAddImage = sequelize.define('product_add_image', {
     img: {type: DataTypes.STRING}
 });
 
+const PromoCode = sequelize.define('promocode', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    discount: {type: DataTypes.INTEGER, allowNull: false, validate: {
+        min: 1,
+        max: 99
+    }}
+});
+
 const Brand = sequelize.define('brand', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false, unique: true}
+    name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    description: {type: DataTypes.TEXT},
+    route: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
 
 const Country = sequelize.define('country', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false, unique: true}
+    name: {type: DataTypes.STRING, allowNull: false, unique: true},
+    route: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
 
 const Category = sequelize.define('category', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false, unique: true}
+    name: {type: DataTypes.STRING, allowNull: false, unique: true},
+    route: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
 
 const SubCategory = sequelize.define('sub_category', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false}
+    name: {type: DataTypes.STRING, allowNull: false},
+    route: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
 
 const CategoryBrand = sequelize.define('category_brand', {
@@ -122,32 +146,46 @@ const SubCategoryCountry = sequelize.define('sub_category_country', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
 });
 
-User.hasOne(Basket);
+const Subscriber = sequelize.define('subscriber', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    email: {type: DataTypes.STRING, unique: true, allowNull: false}
+});
+
+User.hasOne(Token, {onDelete: 'CASCADE'});
+Token.belongsTo(User);
+
+User.hasOne(Basket, {onDelete: 'CASCADE'});
 Basket.belongsTo(User);
-
-User.hasOne(FavList);
-FavList.belongsTo(User);
-
-User.hasMany(Order, {as: 'orders'});
-Order.belongsTo(User);
-
-Order.hasMany(OrderProduct, {as: 'products'});
-OrderProduct.belongsTo(Order);
-
-Basket.hasMany(BasketProduct, {as: 'products'});
-BasketProduct.belongsTo(Basket);
-
-FavList.hasMany(FavProduct, {as: 'favs'});
-FavProduct.belongsTo(FavList);
 
 User.hasMany(Review);
 Review.belongsTo(User);
 
-User.hasOne(BonusCard);
+User.hasOne(BonusCard, {onDelete: 'CASCADE'});
 BonusCard.belongsTo(User);
 
-SpecialSale.hasMany(SaleProduct, {as: 'products'});
-SaleProduct.belongsTo(SpecialSale);
+User.hasOne(FavList, {onDelete: 'CASCADE'});
+FavList.belongsTo(User);
+
+User.hasMany(Order, {as: 'orders', onDelete: 'CASCADE'});
+Order.belongsTo(User);
+
+Order.hasMany(OrderProduct, {as: 'products', onDelete: 'CASCADE'});
+OrderProduct.belongsTo(Order);
+
+Basket.hasMany(BasketProduct, {as: 'products', onDelete: 'CASCADE'});
+BasketProduct.belongsTo(Basket);
+
+FavList.hasMany(FavProduct, {as: 'favs', onDelete: 'CASCADE'});
+FavProduct.belongsTo(FavList);
+
+Product.hasMany(BasketProduct, {onDelete: 'CASCADE'});
+BasketProduct.belongsTo(Product);
+
+Product.hasMany(FavProduct, {onDelete: 'CASCADE'});
+FavProduct.belongsTo(Product);
+
+SpecialSale.hasMany(Brand, {as: 'brands'});
+Brand.belongsTo(SpecialSale);
 
 Brand.hasMany(Product);
 Product.belongsTo(Brand);
@@ -167,13 +205,13 @@ SubCategory.belongsTo(Category);
 SubCategory.hasMany(Product);
 Product.belongsTo(SubCategory);
 
-Product.hasMany(Review, {as: 'reviews'});
+Product.hasMany(Review, {as: 'reviews', onDelete: 'CASCADE'});
 Review.belongsTo(Product);
 
-Product.hasMany(ProductInfo, {as: 'info'});
+Product.hasMany(ProductInfo, {as: 'info', onDelete: 'CASCADE'});
 ProductInfo.belongsTo(Product);
 
-Product.hasMany(ProductAddImage, {as: 'product_add_images'});
+Product.hasMany(ProductAddImage, {as: 'product_add_images', onDelete: 'CASCADE'});
 ProductAddImage.belongsTo(Product);
 
 Category.belongsToMany(Brand, {through: CategoryBrand});
@@ -190,6 +228,7 @@ Country.belongsToMany(SubCategory, {through: SubCategoryCountry});
 
 module.exports = {
     User,
+    Token,
     Basket,
     FavList,
     Order,
@@ -199,7 +238,6 @@ module.exports = {
     BonusCard,
     Review,
     SpecialSale,
-    SaleProduct,
     Product,
     ProductInfo,
     ProductAddImage,
@@ -207,8 +245,7 @@ module.exports = {
     SubCategory,
     Brand,
     Country,
-    CategoryBrand,
-    SubCategoryBrand,
-    CategoryCountry,
-    SubCategoryCountry
+    Subscriber,
+    Certificate,
+    PromoCode
 };

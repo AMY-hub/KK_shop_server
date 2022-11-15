@@ -1,35 +1,34 @@
 const { Country } = require('../models/models');
+const ApiError = require('../error/apiError');
 
 class CountryController {
 
-    async getAll(req, res) {
+    async getAll(req, res, next) {
         try {
             const countries = await Country.findAll();
             return res.json({countries});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         try {
             const {name} = req.body;
             const country = await Country.create({name});
             return res.json({country});
         } catch (err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
-    async delete(req, res, next) {
+    async delete(req, res,next) {
         try {
-            const id = req.path.split('/')[1];
-            const deleted = await Country.destroy({
-                where: {id}
-            });
-            return res.json({message: `Успешно удален ${deleted}`});
+            const id = req.params.id;
+            const deleted = await Country.destroy({ where: {id} });
+            return res.json({message: `Удалено: ${deleted}`});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 };

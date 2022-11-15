@@ -1,40 +1,40 @@
 const { Category, SubCategory } = require('../models/models');
-
+const ApiError = require('../error/apiError');
 
 class CategoryController {
 
-    async getAll(req, res) {
+    async getAll(req, res, next) {
         try {
             const categories = await Category.findAll({
-                include: [{model: SubCategory, as: 'subcategories'}]
+                include: [{model: SubCategory, as: 'subcategories'}],
+                order: [['name', 'ASC']]
             });
             return res.json({categories});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
     async deleteCategory(req, res, next) {
         try {
-            const id = req.path.split('/')[1];
-            const deleted = await Category.destroy({
-                where: {id},
-                include: [{model: SubCategory, as: 'subcategories'}]
-            });
-            return res.json({message: `Успешно удален ${deleted}`});
+            const id = req.params.id;
+            const deleted = await Category.destroy({ where: {id} });
+
+            return res.json({message: `Удалено: ${deleted}`});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         try {
-            const {name, subcategory} = req.body;
-            const category = await Category.create({name});
+            const {name, route, subcategory} = req.body;
+            const category = await Category.create({name, route});
             if(subcategory) {
                 subcategory.forEach(el => {
                     SubCategory.create({
                         name: el.name,
+                        route: el.route,
                         categoryId: category.id
                     })
                 })
@@ -42,7 +42,7 @@ class CategoryController {
 
             return res.json({category});            
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 };

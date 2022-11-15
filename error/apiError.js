@@ -5,16 +5,20 @@ class ApiError extends Error {
         this.message = message;
     }
 
-    static badRequest(message) {
-        return new ApiError(404, message);
+    static badRequest() {
+        return new ApiError(404, 'Страница не найдена');
     }
 
     static internal(message) {
         return new ApiError(500, message);
     }
 
-    static forbidden(message) {
-        return new ApiError(403, message);
+    static forbidden() {
+        return new ApiError(403, 'Доступ запрещен');
+    }
+
+    static unauthorized() {
+        return new ApiError(401, 'Пользователь не авторизован');
     }
 };
 

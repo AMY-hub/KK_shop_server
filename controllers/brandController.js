@@ -1,20 +1,25 @@
 const ApiError = require('../error/apiError');
-const { Brand, Country } = require('../models/models');
+const { Brand, Country, SpecialSale } = require('../models/models');
 
 class BrandController {
 
-    async getAll(req, res) {
+    async getAll(req, res, next) {
         try {
-            const brands = await Brand.findAll();
+            const brands = await Brand.findAll({
+                include: [
+                    {model: SpecialSale},
+                    {model: Country}
+                ]
+            });
             return res.json({brands});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
     async create(req, res, next) {
         try {
-            const {name, country} = req.body;
+            const {name, route, country, description} = req.body;
             const brandCountry = await Country.findOne({
                 where: {name: country}
             });
@@ -25,23 +30,25 @@ class BrandController {
 
             const brand = await Brand.create({
                 name,
-                countryId: brandCountry.id
+                route,
+                description,
+                countryId: brandCountry.id,
+                specialSaleId: null
             });
             return res.json({brand});
         } catch (err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 
     async delete(req, res, next) {
         try {
-            const id = req.path.split('/')[1];
-            const deleted = await Brand.destroy({
-                where: {id}
-            });
-            return res.json({message: `Успешно удален ${deleted}`});
+            const id = req.params.id;
+            const deleted = await Brand.destroy({ where: {id} });
+            
+            return res.json({message: `Удалено: ${deleted}`});
         } catch(err) {
-            next(ApiError.badRequest(err.message));
+            next(ApiError.internal(err.message));
         }
     }
 };
