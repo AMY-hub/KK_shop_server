@@ -38,7 +38,11 @@ const Order = sequelize.define('order', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     address: {type: DataTypes.STRING, allowNull: false},
     shipping_method: {type: DataTypes.STRING, allowNull: false},
-    status: {type: DataTypes.STRING, defaultValue: 'created'}
+    status: {type: DataTypes.STRING, defaultValue: 'Принят'},
+    payment_status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Не оплачен'},
+    payment: {type: DataTypes.STRING, allowNull: false},
+    phone: {type: DataTypes.STRING, allowNull: false},
+    email: {type: DataTypes.STRING, allowNull: false},
 });
 
 const OrderProduct = sequelize.define('order_product', {
@@ -55,6 +59,15 @@ const BonusCard = sequelize.define('bonus_card', {
 const Review = sequelize.define('review', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     text: {type: DataTypes.STRING, allowNull: false}
+});
+
+const ShopAddress = sequelize.define('shop_address', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    type: {type: DataTypes.STRING, defaultValue: 'shop'},
+    address: {type: DataTypes.STRING, allowNull: false, unique: true},
+    email: {type: DataTypes.STRING, unique: true, allowNull: false},
+    phone: {type: DataTypes.STRING, allowNull: false, unique: true},
+    coord: {type: DataTypes.ARRAY(DataTypes.DECIMAL), allowNull: false, unique: true},
 });
 
 const SpecialSale = sequelize.define('special_sale', {
@@ -247,5 +260,6 @@ module.exports = {
     Country,
     Subscriber,
     Certificate,
-    PromoCode
+    PromoCode,
+    ShopAddress
 };

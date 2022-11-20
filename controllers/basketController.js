@@ -8,9 +8,12 @@ class BasketController {
             const authUser = tokenService.checkAuthFromHeader(req.headers.authorization);
             const {temporaryBasketKey} = req.cookies;
 
+            if(!authUser && !temporaryBasketKey) {
+                return res.json(null);
+            }
             const  basket = await basketService.getBasket({
                 userId: authUser?.id || null,
-                key: temporaryBasketKey
+                key: temporaryBasketKey 
             });  
 
             return res.json(basket);
@@ -25,7 +28,6 @@ class BasketController {
              if(!productId) {
                 next(ApiError.badRequest());
             }
-
             const authUser = tokenService.checkAuthFromHeader(req.headers.authorization);
             const {temporaryBasketKey} = req.cookies;
 

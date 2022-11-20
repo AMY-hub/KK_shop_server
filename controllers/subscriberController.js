@@ -18,7 +18,7 @@ class SubscriberController {
             const id = req.params.id;
             const deleted = await Subscriber.destroy({ where: {id} });
 
-            return res.json({message: `Удалено: ${deleted}`});
+            return res.json(deleted);
         } catch(err) {
             next(ApiError.internal(err.message));
         }

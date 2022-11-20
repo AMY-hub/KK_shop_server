@@ -46,7 +46,7 @@ class BrandController {
             const id = req.params.id;
             const deleted = await Brand.destroy({ where: {id} });
             
-            return res.json({message: `Удалено: ${deleted}`});
+            return res.json(deleted);
         } catch(err) {
             next(ApiError.internal(err.message));
         }

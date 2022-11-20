@@ -31,7 +31,7 @@ class SaleController {
             const id = req.params.id;
             const deleted = await SpecialSale.destroy({ where: {id} });
 
-            return res.json({message: `Удалено: ${deleted}`});
+            return res.json(deleted);
         } catch(err) {
             next(ApiError.internal(err.message));
         }

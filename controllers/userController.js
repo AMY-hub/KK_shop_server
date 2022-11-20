@@ -113,7 +113,7 @@ class UserController {
             }
             const deleted = await userService.deleteUser(id);
 
-            return res.json({message: `Удалено: ${deleted}`});
+            return res.json(deleted);
         } catch(err) {
             next(ApiError.internal(err.message));
         }

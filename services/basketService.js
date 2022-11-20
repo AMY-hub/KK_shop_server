@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const nodeCron = require('node-cron');
+const { Op } = require("sequelize");
 const { 
     Basket, 
     BasketProduct, 
@@ -11,6 +13,16 @@ const {
     Country,
     Brand,
     SpecialSale } = require('../models/models');
+
+//Delete the basket of unregistered users without updates every 5 days: 
+nodeCron.schedule("1 * * * *", () => {
+    Basket.destroy({where: {
+        [Op.and]: [
+            {updatedAt: {[Op.lte]: new Date(Date.now() - (1000 * 60 * 60 * 24 * 5))}},
+            {userId: null}
+        ]
+    }})
+});
 
 class BasketService {
 
@@ -93,21 +105,6 @@ class BasketService {
         return deleted;
     }
 
-    async clearBasket(userId) {
-        const basket = await Basket.findOne({
-            where: {userId},  
-        }); 
-            
-        if(!basket) {
-            throw ApiError.internal('Некорректные данные!');
-        }
-        const deleted = await BasketProduct.destroy({
-            where: {basketId: basket.id}
-        });
-
-        return deleted;
-    }
-
     async getBasketProduct(id) {
         const product = await BasketProduct.findOne({ 
             where: {id},
@@ -122,6 +119,21 @@ class BasketService {
                             }]
         });
         return product;
+    }
+
+    async clearBasket(userId) {
+        const basket = await Basket.findOne({
+            where: {userId},  
+        }); 
+            
+        if(!basket) {
+            throw ApiError.internal('Некорректные данные!');
+        }
+        const deleted = await BasketProduct.destroy({
+            where: {basketId: basket.id}
+        });
+
+        return deleted;
     }
 }
 

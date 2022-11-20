@@ -26,7 +26,7 @@ class CountryController {
         try {
             const id = req.params.id;
             const deleted = await Country.destroy({ where: {id} });
-            return res.json({message: `Удалено: ${deleted}`});
+            return res.json(deleted);
         } catch(err) {
             next(ApiError.internal(err.message));
         }
