@@ -6,7 +6,7 @@ const router = new Router();
 
 router.post('/item', basketController.addProduct);
 router.delete('/item/:id', basketController.deleteProduct);
-router.delete('/item', basketController.clearBasket);
+router.delete('/:id', basketController.deleteBasket);
 router.put('/item/:id', basketController.updateProduct);
 router.get('/', basketController.getBasket);
 

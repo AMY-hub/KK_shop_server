@@ -24,7 +24,7 @@ class ProductService {
             order
         } = filterParams;
 
-        const currentLimit = limit || 50;
+        const currentLimit = limit || 10;
         const currentPage = page || 1;
         const offset = currentPage * currentLimit - currentLimit;
 
@@ -51,7 +51,7 @@ class ProductService {
         const products = await Product.findAndCountAll({
             where: filter, 
             order: [sortParams], 
-            limit, 
+            limit: limit, 
             offset,
             include: [
                 { model: Brand, 

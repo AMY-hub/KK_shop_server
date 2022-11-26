@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
 const path = require('path');
 const sequelize = require('./db');
-const models = require('./models/models');
 const router = require('./routes/index');
 const errorHandler = require('./middleware/errorHandler');
 

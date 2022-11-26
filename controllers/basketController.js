@@ -80,13 +80,14 @@ class BasketController {
         }
     }
 
-    async clearBasket(req, res, next) {
+    async deleteBasket(req, res, next) {
         try {
-            const userId = req.user.id;
-            if(!userId) {
-                return next(ApiError.unauthorized());
+            const id = req.params.id;
+            if(!id) {
+                return next(ApiError.badRequest());
             }
-            await basketService.clearBasket(userId);
+            const deleted = await basketService.deleteBasket(id);
+            return res.json(deleted);
         } catch (err) {
             next(ApiError.internal(err.message));
         }

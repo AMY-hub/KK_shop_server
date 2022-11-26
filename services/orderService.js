@@ -1,8 +1,9 @@
-const crypto = require('crypto');
 const { 
     Order, 
     OrderProduct, 
-    Product } = require('../models/models');
+    Product, 
+    User,
+    BonusCard} = require('../models/models');
 
 class OrderService {
 
@@ -11,17 +12,34 @@ class OrderService {
         phone, 
         email, 
         address, 
-        shipping_method, 
+        delivery, 
         payment, 
-        products}) {
+        products,
+        price,
+        delivery_price,
+        bonus_discount}) {
+
+        const key = Math.round(parseInt(phone) + Date.now() / 10);
+        let user;
+        let newBonusPoints;
+        if(userId) {
+            user = await User.findOne({where: {id: userId}});
+        }
+        if(user) {
+            newBonusPoints = await this.updateBonusCard(user.id, 'decr', bonus_discount);
+        }
 
         const newOrder = await Order.create({
-            userId: userId || null,
+            userId: user?.id || null,
+            key,
             phone,
             email,
             address,
-            shipping_method,
-            payment
+            delivery,
+            payment,
+            price,
+            delivery_price,
+            bonus_discount
         });
 
         products.forEach(async (p) => {
@@ -36,10 +54,18 @@ class OrderService {
             });
         });
 
-        return newOrder;
+        return {orderNumber: newOrder.getDataValue('key'), points: newBonusPoints};
     }
 
     async updateStatus(id, status) {
+        const order = await Order.findOne({where: id});
+        if(!order) {
+            throw ApiError.internal('Не удалось обновить данные!');
+        }
+        if(status === 'получен' && order.userId) {
+            const bonus = Math.round(order.price * 0.1);
+            this.updateBonusCard(order.userId, 'inc', bonus);
+        }
         const updated = await Order.update({ status }, {where: {id}});
         return updated;
     }
@@ -49,11 +75,29 @@ class OrderService {
         return updated;
     }
 
+    async updateBonusCard(userId, action, value) {
+        const card = await BonusCard.findOne({where: {userId}});
+        if(!card) {
+            throw ApiError.internal('Не удалось обновить данные карты!');
+        }
+        let points = card.points;
+        
+        if(action === 'inc') {
+            points += value;
+        }
+        if(action === 'decr') {
+            const newPoints = points - value;
+            points = newPoints < 0 ? 0 : newPoints
+        }
+
+        await BonusCard.update({ points }, {where: {id: card.id}});
+        return points;
+    }
+
     async deleteOrder(id) {
         const deleted = await Order.destroy({
             where: {id}
         });
-
         return deleted;
     }
 
@@ -63,7 +107,8 @@ class OrderService {
             include: [{
                 model: OrderProduct, as: 'products', 
             include: [ {model: Product, as: 'product'}]
-            }] 
+            }], 
+            order: [['createdAt', 'DESC']] 
         }); 
         if(!orders) {
             throw ApiError.internal('Некорректные данные!');
@@ -73,7 +118,7 @@ class OrderService {
     }
 
     async getOrder(id) {
-        const product = await BasketProduct.findOne({ 
+        const product = await Order.findOne({ 
             where: {id},
             include: [{
                 model: OrderProduct, as: 'products', 

@@ -34,12 +34,13 @@ class OrderController {
             if(!id) {
                 next(ApiError.badRequest());
             }
+            let updated;
             const {status, payment_status} = req.body;
             if(status) {
-                await orderService.updateStatus(id, status);
+                updated = await orderService.updateStatus(id, status);
             }
             if(payment_status) {
-                await orderService.updatePaymentStatus(id, payment_status);
+               updated = await orderService.updatePaymentStatus(id, payment_status);
             }
             return res.json(updated);
         } catch(err) {
@@ -54,31 +55,37 @@ class OrderController {
                 phone, 
                 email, 
                 address, 
-                shipping_method, 
+                delivery, 
                 payment,
-                products} = req.body;
+                products,
+                price,
+                delivery_price,
+                bonus_discount} = req.body;
 
             if(!phone 
                 || !email 
                 || !address 
-                || !shipping_method 
+                || !delivery
                 || !payment 
                 || !products 
                 || products.length === 0) {
                 return next(ApiError.badRequest());
             }
 
-            const newOrder = await orderService.createOrder({
+            const orderData = await orderService.createOrder({
                 userId,
                 phone, 
                 email, 
                 address, 
-                shipping_method, 
+                delivery, 
                 payment,
-                products
+                products,
+                price,
+                delivery_price,
+                bonus_discount
             });
             
-            return res.json(newOrder);
+            return res.json(orderData);
         } catch (err) {
             next(ApiError.internal(err.message));
         }

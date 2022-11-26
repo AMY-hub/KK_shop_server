@@ -6,9 +6,9 @@ const roleCheck = require('../middleware/roleCheck');
 const router = new Router();
 
 router.post('/', orderController.createOrder);
-router.put('/order/:id', orderController.updateStatus);
-router.delete('/order/:id', authCheck, roleCheck, orderController.deleteOrder);
-router.get('/',authCheck, orderController.getAllOrders);
+router.get('/', authCheck, orderController.getAllOrders);
 router.get('/:id', authCheck, orderController.getOrder);
+router.put('/:id', orderController.updateStatus);
+router.delete('/:id', authCheck, roleCheck, orderController.deleteOrder);
 
 module.exports = router;

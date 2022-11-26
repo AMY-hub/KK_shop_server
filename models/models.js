@@ -1,6 +1,7 @@
 const sequelize = require('../db');
 const {DataTypes} = require('sequelize');
 
+//USER models:
 const User = sequelize.define('user', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true, allowNull: false},
@@ -16,69 +17,13 @@ const Token = sequelize.define('token', {
     refresh_token: {type: DataTypes.STRING, allowNull: false}
 });
 
-const Basket = sequelize.define('basket', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    temporary_key: {type: DataTypes.STRING, allowNull: true, unique: true},
-});
-
-const FavList = sequelize.define('fav_list', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
-});
-
-const BasketProduct = sequelize.define('basket_product', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
-});
-
-const FavProduct = sequelize.define('fav_product', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
-});
-
-const Order = sequelize.define('order', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    address: {type: DataTypes.STRING, allowNull: false},
-    shipping_method: {type: DataTypes.STRING, allowNull: false},
-    status: {type: DataTypes.STRING, defaultValue: 'Принят'},
-    payment_status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Не оплачен'},
-    payment: {type: DataTypes.STRING, allowNull: false},
-    phone: {type: DataTypes.STRING, allowNull: false},
-    email: {type: DataTypes.STRING, allowNull: false},
-});
-
-const OrderProduct = sequelize.define('order_product', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1}
-});
-
 const BonusCard = sequelize.define('bonus_card', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     number: {type: DataTypes.BIGINT, unique: true},
     points: {type: DataTypes.INTEGER, defaultValue: 0}
 });
 
-const Review = sequelize.define('review', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    text: {type: DataTypes.STRING, allowNull: false}
-});
-
-const ShopAddress = sequelize.define('shop_address', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    type: {type: DataTypes.STRING, defaultValue: 'shop'},
-    address: {type: DataTypes.STRING, allowNull: false, unique: true},
-    email: {type: DataTypes.STRING, unique: true, allowNull: false},
-    phone: {type: DataTypes.STRING, allowNull: false, unique: true},
-    coord: {type: DataTypes.ARRAY(DataTypes.DECIMAL), allowNull: false, unique: true},
-});
-
-const SpecialSale = sequelize.define('special_sale', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, unique: true},
-    discount: {type: DataTypes.INTEGER, allowNull: false, validate: {
-        min: 1,
-        max: 99
-    }}
-});
-
+//PRODUCT models:
 const Product = sequelize.define('product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, allowNull: false, unique: true},
@@ -89,13 +34,6 @@ const Product = sequelize.define('product', {
     volume: {type: DataTypes.STRING, allowNull: false},
     orderQuantity: {type: DataTypes.INTEGER, defaultValue: 0},
     art: {type: DataTypes.STRING(10), unique: true, allowNull: false} 
-});
-
-const Certificate = sequelize.define('certificate', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false, unique: true},
-    price: {type: DataTypes.INTEGER, allowNull: false},
-    img: {type: DataTypes.STRING, allowNull: false},
 });
 
 const ProductInfo = sequelize.define('product_info', {
@@ -109,13 +47,9 @@ const ProductAddImage = sequelize.define('product_add_image', {
     img: {type: DataTypes.STRING}
 });
 
-const PromoCode = sequelize.define('promocode', {
+const Review = sequelize.define('review', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, unique: true, allowNull: false},
-    discount: {type: DataTypes.INTEGER, allowNull: false, validate: {
-        min: 1,
-        max: 99
-    }}
+    text: {type: DataTypes.STRING, allowNull: false}
 });
 
 const Brand = sequelize.define('brand', {
@@ -159,10 +93,86 @@ const SubCategoryCountry = sequelize.define('sub_category_country', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
 });
 
+//LIST models:
+const Basket = sequelize.define('basket', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    temporary_key: {type: DataTypes.STRING, allowNull: true, unique: true},
+});
+
+const FavList = sequelize.define('fav_list', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
+});
+
+const BasketProduct = sequelize.define('basket_product', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
+});
+
+const FavProduct = sequelize.define('fav_product', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
+});
+
+const Order = sequelize.define('order', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    key: {type: DataTypes.STRING, allowNull: true, unique: true},
+    address: {type: DataTypes.STRING, allowNull: false},
+    delivery: {type: DataTypes.STRING, allowNull: false},
+    status: {type: DataTypes.STRING, defaultValue: 'принят'},
+    payment_status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'не оплачен'},
+    payment: {type: DataTypes.STRING, allowNull: false},
+    phone: {type: DataTypes.STRING, allowNull: false},
+    email: {type: DataTypes.STRING, allowNull: false},
+    price: {type: DataTypes.INTEGER, allowNull: false},
+    delivery_price: {type: DataTypes.INTEGER, allowNull: false},
+    bonus_discount: {type: DataTypes.INTEGER, defaultValue: 0},
+});
+
+const OrderProduct = sequelize.define('order_product', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    amount: {type: DataTypes.INTEGER, defaultValue: 1}
+});
+
+//SHOP DATA models:
+const ShopAddress = sequelize.define('shop_address', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    type: {type: DataTypes.STRING, defaultValue: 'shop'},
+    city: {type: DataTypes.STRING, allowNull: false},
+    address: {type: DataTypes.STRING, allowNull: false, unique: true},
+    email: {type: DataTypes.STRING, unique: true, allowNull: false},
+    phone: {type: DataTypes.STRING, allowNull: false, unique: true},
+    coord: {type: DataTypes.ARRAY(DataTypes.DECIMAL), allowNull: false, unique: true},
+});
+
+const SpecialSale = sequelize.define('special_sale', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true},
+    discount: {type: DataTypes.INTEGER, allowNull: false, validate: {
+        min: 1,
+        max: 99
+    }}
+});
+
+const PromoCode = sequelize.define('promocode', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    discount: {type: DataTypes.INTEGER, allowNull: false, validate: {
+        min: 1,
+        max: 99
+    }}
+});
+
 const Subscriber = sequelize.define('subscriber', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
+
+const Certificate = sequelize.define('certificate', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, allowNull: false, unique: true},
+    price: {type: DataTypes.INTEGER, allowNull: false},
+    img: {type: DataTypes.STRING, allowNull: false},
+});
+
 
 User.hasOne(Token, {onDelete: 'CASCADE'});
 Token.belongsTo(User);
@@ -196,6 +206,9 @@ BasketProduct.belongsTo(Product);
 
 Product.hasMany(FavProduct, {onDelete: 'CASCADE'});
 FavProduct.belongsTo(Product);
+
+Product.hasMany(OrderProduct);
+OrderProduct.belongsTo(Product);
 
 SpecialSale.hasMany(Brand, {as: 'brands'});
 Brand.belongsTo(SpecialSale);
@@ -242,15 +255,8 @@ Country.belongsToMany(SubCategory, {through: SubCategoryCountry});
 module.exports = {
     User,
     Token,
-    Basket,
-    FavList,
-    Order,
-    BasketProduct,
-    FavProduct,
-    OrderProduct,
     BonusCard,
     Review,
-    SpecialSale,
     Product,
     ProductInfo,
     ProductAddImage,
@@ -258,6 +264,13 @@ module.exports = {
     SubCategory,
     Brand,
     Country,
+    Basket,
+    FavList,
+    Order,
+    BasketProduct,
+    FavProduct,
+    OrderProduct,
+    SpecialSale,
     Subscriber,
     Certificate,
     PromoCode,

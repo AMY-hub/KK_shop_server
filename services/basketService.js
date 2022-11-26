@@ -63,7 +63,7 @@ class BasketService {
         if(!userId && key) {
             basket = await Basket.findOne({ where: {temporary_key: key} }); 
         }
-        if(!userId && !key) {
+        if((!userId && !key) || !basket) {
             basket = await this.createTemporaryBasket()
         }
 
@@ -121,18 +121,22 @@ class BasketService {
         return product;
     }
 
-    async clearBasket(userId) {
+    async deleteBasket(id) {
         const basket = await Basket.findOne({
-            where: {userId},  
+            where: {id},  
         }); 
-            
         if(!basket) {
             throw ApiError.internal('Некорректные данные!');
         }
-        const deleted = await BasketProduct.destroy({
-            where: {basketId: basket.id}
+        if(basket.userId) {
+            const deleted = await BasketProduct.destroy({
+                where: {basketId: id}
+            });
+            return deleted;
+        }
+        const deleted = await Basket.destroy({ 
+            where: {temporary_key: basket.temporary_key} 
         });
-
         return deleted;
     }
 }

@@ -4,8 +4,7 @@ const {
     User, 
     Basket, 
     FavList, 
-    BonusCard, 
-    Order } = require('../models/models');
+    BonusCard } = require('../models/models');
 const basketService = require('./basketService');
 const favService = require('./favService');
 const tokenService = require('./tokenService');
@@ -33,8 +32,7 @@ class UserService {
         const fullUserData = await User.findOne({
             where:{id: user.id},
             include: [
-                {model: BonusCard, as: 'bonus_card'},
-                {model: Order, as: 'orders'}
+                {model: BonusCard, as: 'bonus_card'}
             ]});
         const basket = await basketService.getBasket({userId: user.id});
         const fav_list = await favService.getFavList(user.id);
@@ -46,8 +44,7 @@ class UserService {
         const user = await User.findOne({
             where:{email},
             include: [
-                {model: BonusCard, as: 'bonus_card'},
-                {model: Order, as: 'orders'}
+                {model: BonusCard, as: 'bonus_card'}
             ]});
             if(!user) {
                 throw ApiError.internal('Пользователь с таким email не найден!');
@@ -77,7 +74,6 @@ class UserService {
     async refresh (refreshToken) {
         const userData = tokenService.validateRefreshToken(refreshToken);
         const tokenFromDB = await tokenService.findRefreshToken(refreshToken);
-
         if(!userData || ! tokenFromDB) {
             throw ApiError.unauthorized();
         }
@@ -85,8 +81,7 @@ class UserService {
         const user = await User.findOne({
             where: {id: userData.id},
             include: [
-                {model: BonusCard, as: 'bonus_card'},
-                {model: Order, as: 'orders'}
+                {model: BonusCard, as: 'bonus_card'}
             ]});
 
         const tokens = tokenService.createTokens({
@@ -110,8 +105,7 @@ class UserService {
     async getAllUsers () {
         const users = await User.findAll({
                 include: [
-                {model: BonusCard, as: 'bonus_card'},
-                {model: Order, as: 'orders'}
+                {model: BonusCard, as: 'bonus_card'}
             ]});
 
         return users;
