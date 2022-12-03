@@ -12,7 +12,9 @@ const {
     SubCategory,
     Country,
     Brand,
-    SpecialSale } = require('../models/models');
+    SpecialSale, 
+    Certificate,
+    BasketCertificate} = require('../models/models');
 
 //Delete the basket of unregistered users without updates every 5 days: 
 nodeCron.schedule("1 * * * *", () => {
@@ -29,7 +31,8 @@ class BasketService {
     async getBasket ({userId, key}) {
         const basket = await Basket.findOne({
                 where: userId ? {userId} : {temporary_key: key},
-                include: [{model: BasketProduct, as: 'products', include: [
+                include: [
+                    {model: BasketProduct, as: 'products', include: [
                             {model: Product, as: 'product', include: [
                             {model: ProductInfo, as: 'info'},
                             {model: ProductAddImage, as: 'product_add_images'},
@@ -38,7 +41,10 @@ class BasketService {
                             { model: SubCategory },
                             { model: Country },
                             { model: Brand, include: [{model: SpecialSale}]}]                        
-                            }]}
+                    },
+                    {model: BasketCertificate, as: 'certificates', include: [
+                        {model: Certificate, as: 'certificate'}
+                    ]}]}
                 ]
             });
 
@@ -54,7 +60,7 @@ class BasketService {
         return basket;
     }
 
-    async addProduct({userId, productId, key}) {
+    async findOrCreateBasket(userId, key) {
         let basket;
 
         if(userId) {
@@ -66,6 +72,11 @@ class BasketService {
         if((!userId && !key) || !basket) {
             basket = await this.createTemporaryBasket()
         }
+        return basket;
+    }
+
+    async addProduct({userId, productId, key}) {
+        const basket = await this.findOrCreateBasket(userId, key);
 
         const existingProduct = await BasketProduct.findOne({ 
             where: {productId, basketId: basket.id}

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const path = require('path');
+const { Op } = require("sequelize");
 const { 
     Product, 
     ProductInfo, 
@@ -14,39 +15,12 @@ const {
 class ProductService {
 
     async getProducts(filterParams) {
-        const {
-            brandId, 
-            categoryId, 
-            subCategoryId, 
-            limit, 
-            page, 
-            sort, 
-            order
-        } = filterParams;
+        const {limit, page} = filterParams;
+        const [filter, sortParams] = this.configureFilter(filterParams);
 
         const currentLimit = limit || 10;
         const currentPage = page || 1;
         const offset = currentPage * currentLimit - currentLimit;
-
-        let filter = {};
-        if(brandId) {
-            filter.brandId = brandId;
-        }
-        if(categoryId) {
-            filter.categoryId = categoryId;
-        }
-        if(subCategoryId) {
-            filter.subCategoryId = subCategoryId;
-        }
-
-        let sortParams = ['id', 'ASC'];
-        if(sort && order) {
-            sortParams[0] = sort;
-            sortParams[1] = order;
-        }
-        if(sort && !order) {
-            sortParams[0] = sort;
-        }
 
         const products = await Product.findAndCountAll({
             where: filter, 
@@ -63,7 +37,7 @@ class ProductService {
                 { model: Country }
             ]
         });
-        
+
         return products; 
     }
 
@@ -146,6 +120,46 @@ class ProductService {
             }
 
            return product;
+    }
+
+    configureFilter(params) {
+        const {
+            brandId, 
+            categoryId, 
+            subCategoryId, 
+            sort, 
+            order,
+            minPrice,
+            maxPrice
+        } = params;
+
+        let filter = {};
+        if(brandId) {
+            filter.brandId = {
+                    [Op.in]: Array.isArray(brandId) ? brandId : brandId.split(',')
+                } 
+        }
+        if(categoryId) {
+            filter.categoryId = categoryId;
+        }
+        if(subCategoryId) {
+            filter.subCategoryId = subCategoryId;
+        }
+        if(minPrice && maxPrice) {
+            filter.price = {
+                    [Op.between]: [minPrice, maxPrice]
+                } 
+        }
+
+        let sortParams = ['id', 'ASC'];
+        if(sort) {
+            sortParams[0] = sort;
+        }
+        if(order) {
+            sortParams[1] = order;
+        }
+
+        return [filter, sortParams];
     }
 };
 

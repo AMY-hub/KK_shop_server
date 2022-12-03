@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        await sequelize.sync({ alter: true });
         app.listen(port, () => console.log(`Server starts at port: ${port}`));
     } catch(err) {
         console.log('Unable to connect DB: ', err);

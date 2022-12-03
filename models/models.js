@@ -23,6 +23,13 @@ const BonusCard = sequelize.define('bonus_card', {
     points: {type: DataTypes.INTEGER, defaultValue: 0}
 });
 
+const Certificate = sequelize.define('certificate', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, allowNull: false, unique: true},
+    price: {type: DataTypes.INTEGER, allowNull: false},
+    img: {type: DataTypes.STRING, allowNull: false},
+});
+
 //PRODUCT models:
 const Product = sequelize.define('product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
@@ -108,6 +115,11 @@ const BasketProduct = sequelize.define('basket_product', {
     amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
 });
 
+const BasketCertificate = sequelize.define('basket_certificate', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
+});
+
 const FavProduct = sequelize.define('fav_product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}
 });
@@ -128,6 +140,11 @@ const Order = sequelize.define('order', {
 });
 
 const OrderProduct = sequelize.define('order_product', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    amount: {type: DataTypes.INTEGER, defaultValue: 1}
+});
+
+const OrderCertificate = sequelize.define('order_certificate', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     amount: {type: DataTypes.INTEGER, defaultValue: 1}
 });
@@ -166,13 +183,6 @@ const Subscriber = sequelize.define('subscriber', {
     email: {type: DataTypes.STRING, unique: true, allowNull: false}
 });
 
-const Certificate = sequelize.define('certificate', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    name: {type: DataTypes.STRING, allowNull: false, unique: true},
-    price: {type: DataTypes.INTEGER, allowNull: false},
-    img: {type: DataTypes.STRING, allowNull: false},
-});
-
 
 User.hasOne(Token, {onDelete: 'CASCADE'});
 Token.belongsTo(User);
@@ -195,14 +205,23 @@ Order.belongsTo(User);
 Order.hasMany(OrderProduct, {as: 'products', onDelete: 'CASCADE'});
 OrderProduct.belongsTo(Order);
 
+Order.hasMany(OrderCertificate, {as: 'certificates', onDelete: 'CASCADE'});
+OrderCertificate.belongsTo(Order);
+
 Basket.hasMany(BasketProduct, {as: 'products', onDelete: 'CASCADE'});
 BasketProduct.belongsTo(Basket);
+
+Basket.hasMany(BasketCertificate, {as: 'certificates', onDelete: 'CASCADE'});
+BasketCertificate.belongsTo(Basket);
 
 FavList.hasMany(FavProduct, {as: 'favs', onDelete: 'CASCADE'});
 FavProduct.belongsTo(FavList);
 
 Product.hasMany(BasketProduct, {onDelete: 'CASCADE'});
 BasketProduct.belongsTo(Product);
+
+Certificate.hasMany(BasketProduct, {onDelete: 'CASCADE'});
+BasketProduct.belongsTo(Certificate);
 
 Product.hasMany(FavProduct, {onDelete: 'CASCADE'});
 FavProduct.belongsTo(Product);
@@ -268,8 +287,10 @@ module.exports = {
     FavList,
     Order,
     BasketProduct,
+    BasketCertificate,
     FavProduct,
     OrderProduct,
+    OrderCertificate,
     SpecialSale,
     Subscriber,
     Certificate,
