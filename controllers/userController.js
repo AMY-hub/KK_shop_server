@@ -98,7 +98,7 @@ class UserController {
 
             return res.json(userData);
         } catch(err) {
-            next(ApiError.internal(err.message));
+            next(ApiError.unauthorized());
         }
         
     }

@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 const nodeCron = require('node-cron');
 const { Op } = require("sequelize");
+const ApiError = require('../../error/apiError');
+const basketCertificateService = require('./basketCertificateService');
+const basketProductService = require('./basketProductService');
 const { 
     Basket, 
     BasketProduct, 
@@ -14,7 +17,7 @@ const {
     Brand,
     SpecialSale, 
     Certificate,
-    BasketCertificate} = require('../models/models');
+    BasketCertificate} = require('../../models/models');
 
 //Delete the basket of unregistered users without updates every 5 days: 
 nodeCron.schedule("1 * * * *", () => {
@@ -41,14 +44,14 @@ class BasketService {
                             { model: SubCategory },
                             { model: Country },
                             { model: Brand, include: [{model: SpecialSale}]}]                        
-                    },
+                    }]},
                     {model: BasketCertificate, as: 'certificates', include: [
                         {model: Certificate, as: 'certificate'}
-                    ]}]}
+                    ]}
                 ]
             });
 
-        return basket.getDataValue('products');
+        return [...basket.getDataValue('products'), ...basket.getDataValue('certificates')];
     }
 
     async createTemporaryBasket () {
@@ -75,61 +78,50 @@ class BasketService {
         return basket;
     }
 
-    async addProduct({userId, productId, key}) {
+    async addItem({userId, itemId, type, key}) {
         const basket = await this.findOrCreateBasket(userId, key);
-
-        const existingProduct = await BasketProduct.findOne({ 
-            where: {productId, basketId: basket.id}
-        } );
-
-        if(existingProduct) {
-            const newBasketItem = await this.updateProduct(existingProduct.id, existingProduct.amount + 1);  
-            return ({newBasketItem, key: basket.getDataValue('temporary_key')});   
-        }
-
-        const product = await Product.findOne({ where: {id: productId} });
-    
-        if(!basket || !product) {
+        if(!basket) {
             throw ApiError.internal('Некорректные данные!');
         }
 
-        const basketItem = await BasketProduct.create({
-            basketId: basket.id,
-            productId
-        });
-    
-        const newBasketItem = await this.getBasketProduct(basketItem.id);
-        return ({newBasketItem, key: basket.getDataValue('temporary_key')});
+        if(type === 'certificate') {
+           const newBasketItem = await basketCertificateService
+           .addCertificate(basket.id, itemId)
+            return ({newBasketItem, key: basket.getDataValue('temporary_key')});  
+        }
+
+        if(type === 'product') {
+           const newBasketItem = await basketProductService
+           .addProduct(basket.id, itemId);
+
+            return ({newBasketItem, key: basket.getDataValue('temporary_key')});  
+        }
+
+        return null;
     }
 
-    async updateProduct(id, amount) {
-        await BasketProduct.update({ amount }, {where: {id}});
-        const newBasketItem = await this.getBasketProduct(id);
-        return newBasketItem;
+    async updateItem(id, amount, type) {
+        if(type === 'certificate') {
+           return await basketCertificateService
+            .updateItem(id, amount);
+        }
+        if(type === 'product') {
+            return await basketProductService
+            .updateProduct(id, amount);
+        }
+        return null;
     }
 
-    async deleteProduct(id) {
-        const deleted = await BasketProduct.destroy({
-            where: {id}
-        });
+    async deleteItem(id, type) {
+        let deleted = 0;
+        if(type === 'certificate') {
+            deleted = await basketCertificateService.deleteItem(id);
+        }
+        if(type === 'product') {
+            deleted = await basketProductService.deleteProduct(id);
+        }
 
         return deleted;
-    }
-
-    async getBasketProduct(id) {
-        const product = await BasketProduct.findOne({ 
-            where: {id},
-            include: [{ model: Product, as: 'product', include: [
-                            {model: ProductInfo, as: 'info'},
-                            {model: ProductAddImage, as: 'product_add_images'},
-                            {model: Review, as: 'reviews'} ,
-                            { model: Category },
-                            { model: SubCategory },
-                            { model: Country },
-                            { model: Brand, include: [{model: SpecialSale}]}]                        
-                            }]
-        });
-        return product;
     }
 
     async deleteBasket(id) {
@@ -143,7 +135,10 @@ class BasketService {
             const deleted = await BasketProduct.destroy({
                 where: {basketId: id}
             });
-            return deleted;
+            const deletedCertificates = await BasketCertificate.destroy({
+                where: {basketId: id}
+            });
+            return deleted + deletedCertificates;
         }
         const deleted = await Basket.destroy({ 
             where: {temporary_key: basket.temporary_key} 

@@ -1,5 +1,5 @@
 const ApiError = require('../error/apiError');
-const basketService = require('../services/basketService');
+const basketService = require('../services/basketService/basketService');
 const tokenService = require('../services/tokenService');
 
 class BasketController {
@@ -11,7 +11,7 @@ class BasketController {
             if(!authUser && !temporaryBasketKey) {
                 return res.json(null);
             }
-            const  basket = await basketService.getBasket({
+            const basket = await basketService.getBasket({
                 userId: authUser?.id || null,
                 key: temporaryBasketKey 
             });  
@@ -22,21 +22,22 @@ class BasketController {
         }
     }
 
-    async addProduct(req, res, next) {
+    async addItem(req, res, next) {
         try {
-            const productId = req.body.productId;
-             if(!productId) {
+            const {itemId, type} = req.body;
+             if(!itemId || !type) {
                 next(ApiError.badRequest());
             }
             const authUser = tokenService.checkAuthFromHeader(req.headers.authorization);
             const {temporaryBasketKey} = req.cookies;
 
-            const {newBasketItem, key} = await basketService.addProduct({
+            const {newBasketItem, key} = await basketService.addItem({
                 userId: authUser?.id || null,
                 key: temporaryBasketKey,
-                productId
-            });
-            
+                itemId,
+                type
+            });  
+     
             if(key) {
                 res.cookie('temporaryBasketKey', key, {
                 maxAge: 7 * 24 * 60 * 60 * 1000, //7days
@@ -49,30 +50,32 @@ class BasketController {
         }
     }
 
-    async updateProduct(req, res, next) {
+    async updateItem(req, res, next) {
         try {
             const id = req.params.id;
+            const type = req.params.type;
             const {amount} = req.body;
 
-            if(!id || !amount) {
+            if(!id || !type || !amount) {
                 next(ApiError.badRequest());
             }
-            const product = await basketService.updateProduct(id, amount);
+            const item = await basketService.updateItem(id, amount, type);
 
-            return res.json(product);
+            return res.json(item);
         } catch (err) {
             next(ApiError.internal(err.message));
         }
     }
 
-    async deleteProduct(req, res, next) {
+    async deleteItem(req, res, next) {
         try {
             const id = req.params.id;
+            const type = req.params.type;
            
-            if(!id) {
+            if(!id || !type) {
                 next(ApiError.badRequest());
             }
-            const deleted = await basketService.deleteProduct(id);
+            const deleted = await basketService.deleteItem(id, type);
 
             return res.json(deleted);
         } catch (err) {

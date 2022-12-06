@@ -3,7 +3,9 @@ const {
     OrderProduct, 
     Product, 
     User,
-    BonusCard} = require('../models/models');
+    BonusCard,
+    OrderCertificate,
+    Certificate} = require('../models/models');
 
 class OrderService {
 
@@ -15,6 +17,7 @@ class OrderService {
         delivery, 
         payment, 
         products,
+        certificates,
         price,
         delivery_price,
         bonus_discount}) {
@@ -53,6 +56,20 @@ class OrderService {
                 productId: p.id
             });
         });
+
+        if(certificates) {
+            certificates.forEach(async (c) => {
+            const certificate = await Certificate.findOne({ where: {id: c.id} });
+            if(!certificate) {
+                throw ApiError.internal('Некорректные данные!');
+            }
+            OrderCertificate.create({
+                amount: c.amount, 
+                orderId: newOrder.id,
+                certificateId: c.id
+            });
+        });
+        }
 
         return {orderNumber: newOrder.getDataValue('key'), points: newBonusPoints};
     }
@@ -106,8 +123,12 @@ class OrderService {
             where: {userId}, 
             include: [{
                 model: OrderProduct, as: 'products', 
-            include: [ {model: Product, as: 'product'}]
-            }], 
+                include: [ {model: Product, as: 'product'}]
+            }, 
+            {
+                model: OrderCertificate, as: 'certificates',
+                include: [ {model: Certificate, as: 'certificate'}]
+            }] , 
             order: [['createdAt', 'DESC']] 
         }); 
         if(!orders) {
@@ -122,7 +143,11 @@ class OrderService {
             where: {id},
             include: [{
                 model: OrderProduct, as: 'products', 
-            include: [ {model: Product, as: 'product'}]
+                include: [ {model: Product, as: 'product'}]
+            }, 
+            {
+                model: OrderCertificate, as: 'certificates',
+                include: [ {model: Certificate, as: 'certificate'}]
             }] 
         });
 

@@ -112,12 +112,14 @@ const FavList = sequelize.define('fav_list', {
 
 const BasketProduct = sequelize.define('basket_product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
+    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false},
+    type: { type: DataTypes.STRING, defaultValue: 'product'}
 });
 
 const BasketCertificate = sequelize.define('basket_certificate', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false}
+    amount: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false},
+    type: { type: DataTypes.STRING, defaultValue: 'certificate'}
 });
 
 const FavProduct = sequelize.define('fav_product', {
@@ -141,12 +143,14 @@ const Order = sequelize.define('order', {
 
 const OrderProduct = sequelize.define('order_product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1}
+    amount: {type: DataTypes.INTEGER, defaultValue: 1},
+    type: { type: DataTypes.STRING, defaultValue: 'product'}
 });
 
 const OrderCertificate = sequelize.define('order_certificate', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    amount: {type: DataTypes.INTEGER, defaultValue: 1}
+    amount: {type: DataTypes.INTEGER, defaultValue: 1},
+    type: { type: DataTypes.STRING, defaultValue: 'certificate'}
 });
 
 //SHOP DATA models:
@@ -220,8 +224,11 @@ FavProduct.belongsTo(FavList);
 Product.hasMany(BasketProduct, {onDelete: 'CASCADE'});
 BasketProduct.belongsTo(Product);
 
-Certificate.hasMany(BasketProduct, {onDelete: 'CASCADE'});
-BasketProduct.belongsTo(Certificate);
+Certificate.hasMany(BasketCertificate, {onDelete: 'CASCADE'});
+BasketCertificate.belongsTo(Certificate);
+
+Certificate.hasMany(OrderCertificate, {onDelete: 'CASCADE'});
+OrderCertificate.belongsTo(Certificate);
 
 Product.hasMany(FavProduct, {onDelete: 'CASCADE'});
 FavProduct.belongsTo(Product);

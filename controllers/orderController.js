@@ -58,6 +58,7 @@ class OrderController {
                 delivery, 
                 payment,
                 products,
+                certificates,
                 price,
                 delivery_price,
                 bonus_discount} = req.body;
@@ -80,6 +81,7 @@ class OrderController {
                 delivery, 
                 payment,
                 products,
+                certificates,
                 price,
                 delivery_price,
                 bonus_discount
