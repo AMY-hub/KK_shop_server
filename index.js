@@ -8,7 +8,7 @@ const sequelize = require('./db');
 const router = require('./routes/index');
 const errorHandler = require('./middleware/errorHandler');
 
-const port = process.env.PORT ?? 8000;
+const port = process.env.PORT || 8080;
 
 const corsOptions ={
     origin:'http://localhost:3000', 
