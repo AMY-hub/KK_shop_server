@@ -10,10 +10,23 @@ const errorHandler = require('./middleware/errorHandler');
 
 const port = process.env.PORT || 8080;
 
+const whitelist = [
+  'http://localhost:3000',
+  'https://kk-shop.vercel.app',
+  'https://kk-shop-amy-hub.vercel.app',
+  'https://kkshop-3avj.onrender.com',
+  'https://kkshop.onrender.com'
+];
+
 const corsOptions ={
-    origin:'http://localhost:3000', 
+    origin: (origin, callback) => {
+        const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+        callback(null, originIsWhitelisted);
+    }, 
     credentials:true,           
-    optionSuccessStatus:200
+    optionSuccessStatus:200,
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: 'accept, content-type, authorization'
 }
 
 const app = express();
