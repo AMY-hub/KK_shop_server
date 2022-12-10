@@ -28,6 +28,8 @@ class UserController {
 
         res.cookie('refreshToken', userData.refreshToken, {
             httpOnly: true,
+            sameSite: "None",
+            secure: true,
             maxAge: 30 * 24 * 60 * 60 * 1000, //30days
         });
 
@@ -50,7 +52,9 @@ class UserController {
 
             res.cookie('refreshToken', userData.refreshToken, {
             httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000, //30days
+            sameSite: "None",
+            secure: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000, //30days,
             });
 
             return res.json(userData);
@@ -93,6 +97,8 @@ class UserController {
             const userData = await userService.refresh(refreshToken);
             res.cookie('refreshToken', userData.refreshToken, {
                 httpOnly: true,
+                sameSite: "None",
+                secure: true,
                 maxAge: 30 * 24 * 60 * 60 * 1000, //30days
             });
 

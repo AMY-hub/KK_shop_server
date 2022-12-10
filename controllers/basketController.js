@@ -40,7 +40,7 @@ class BasketController {
      
             if(key) {
                 res.cookie('temporaryBasketKey', key, {
-                maxAge: 7 * 24 * 60 * 60 * 1000, //7days
+                maxAge: 5 * 24 * 60 * 60 * 1000, //5days
             });
             }
 
