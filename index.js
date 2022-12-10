@@ -15,7 +15,8 @@ const whitelist = [
   'https://kk-shop.vercel.app',
   'https://kk-shop-amy-hub.vercel.app',
   'https://kkshop-3avj.onrender.com',
-  'https://kkshop.onrender.com'
+  'https://kkshop.onrender.com',
+  'https://app.netlify.com/'
 ];
 
 const corsOptions ={
