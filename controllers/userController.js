@@ -1,5 +1,6 @@
 const ApiError = require('../error/apiError');
 const userService = require('../services/userService');
+require('dotenv').config();
 
 class UserController {
     async register(req, res, next) {
@@ -29,6 +30,8 @@ class UserController {
         res.cookie('refreshToken', userData.refreshToken, {
             httpOnly: true,
             sameSite: "None",
+            domain: process.env.NODE_ENV === 'development' 
+                ? 'localhost' : 'onrender.com',
             secure: true,
             maxAge: 30 * 24 * 60 * 60 * 1000, //30days
         });
@@ -49,11 +52,12 @@ class UserController {
             }
 
             const userData = await userService.login(email, password);
-
             res.cookie('refreshToken', userData.refreshToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
+            domain: process.env.NODE_ENV === 'development' 
+                ? 'localhost' : 'onrender.com',
             maxAge: 30 * 24 * 60 * 60 * 1000, //30days,
             });
 
@@ -99,6 +103,8 @@ class UserController {
                 httpOnly: true,
                 sameSite: "None",
                 secure: true,
+                domain: process.env.NODE_ENV === 'development' 
+                ? 'localhost' : 'kkshop-3avj.onrender.com',
                 maxAge: 30 * 24 * 60 * 60 * 1000, //30days
             });
 
