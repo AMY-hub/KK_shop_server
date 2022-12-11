@@ -1,4 +1,5 @@
 require('dotenv').config();
+const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -50,6 +51,9 @@ const start = async () => {
         await sequelize.authenticate();
         await sequelize.sync({ alter: true });
         app.listen(port, () => console.log(`Server starts at port: ${port}`));
+        setInterval(function() {
+            https.get('https://kkshop.onrender.com/');
+        }, 780000)
     } catch(err) {
         console.log('Unable to connect DB: ', err);
     }
