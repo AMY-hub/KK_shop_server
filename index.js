@@ -11,7 +11,7 @@ const errorHandler = require('./middleware/errorHandler');
 const port = process.env.PORT || 8080;
 
 const whitelist = [
-  'http://localhost:3000',
+  'http://localhost',
   'https://kk-shop.vercel.app',
   'https://kk-shop-amy-hub.vercel.app',
   'https://kkshop-3avj.onrender.com',
