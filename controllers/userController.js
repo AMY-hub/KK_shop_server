@@ -31,7 +31,7 @@ class UserController {
             httpOnly: true,
             sameSite: "None",
             domain: process.env.NODE_ENV === 'development' 
-                ? 'localhost' : 'onrender.com',
+                ? 'localhost' : 'kkshop-3avj.onrender.com',
             secure: true,
             maxAge: 30 * 24 * 60 * 60 * 1000, //30days
         });
@@ -57,7 +57,7 @@ class UserController {
             sameSite: "None",
             secure: true,
             domain: process.env.NODE_ENV === 'development' 
-                ? 'localhost' : 'onrender.com',
+                ? 'localhost' : 'kkshop-3avj.onrender.com',
             maxAge: 30 * 24 * 60 * 60 * 1000, //30days,
             });
 
