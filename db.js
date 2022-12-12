@@ -1,4 +1,5 @@
 const {Sequelize} = require('sequelize');
+const pg = require('pg');
 require('dotenv').config();
 
 let sequelize;
@@ -7,6 +8,7 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod") {
   sequelize = new Sequelize(process.env.DATABASE_URL || 'postgres://AMY-hub:kFE2rU5qGMxp@ep-bitter-frog-345662.eu-central-1.aws.neon.tech/neondb', {
     logging: false,
     ssl: true,
+    dialectModule: pg,
     dialectOptions: {
                 ssl: {
                     require: true
