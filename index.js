@@ -22,12 +22,15 @@ const whitelist = [
 ];
 
 const corsOptions ={
-    origin: (origin, callback) => {
-        const originIsWhitelisted = whitelist.indexOf(origin) !== -1;
-        callback(null, originIsWhitelisted);
-    }, 
+    origin: [
+        'http://localhost',
+        'https://kkshop.vercel.app',
+        'https://kk-shop-server.vercel.app',
+    ], 
     credentials:true,           
-    optionSuccessStatus:200
+    optionSuccessStatus:200,
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
 }
 
 const app = express();
