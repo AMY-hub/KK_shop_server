@@ -28,6 +28,8 @@ const corsOptions ={
     }, 
     credentials:true,           
     optionSuccessStatus:200,
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: 'accept, content-type, authorization, X-Requested-With, X-HTTP-Method-Override'
 }
 
 const app = express();
