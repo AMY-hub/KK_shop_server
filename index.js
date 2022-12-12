@@ -11,21 +11,13 @@ const errorHandler = require('./middleware/errorHandler');
 
 const port = process.env.PORT || 8080;
 
-const whitelist = [
-  'http://localhost',
-  'https://kkshop.vercel.app',
-  'https://kk-shop-server.vercel.app',
-  'https://kk-shop-amy-hub.vercel.app',
-  'https://kkshop-3avj.onrender.com',
-  'https://kkshop.onrender.com',
-  'https://kk-shop.netlify.app'
-];
-
 const corsOptions ={
     origin: [
         'http://localhost',
         'https://kkshop.vercel.app',
         'https://kk-shop-server.vercel.app',
+        'https://app.kkshop.site',
+        'https://api.kkshop.site'
     ], 
     credentials:true,           
     optionSuccessStatus:200,
@@ -54,9 +46,6 @@ const start = async () => {
         await sequelize.authenticate();
         await sequelize.sync({ alter: true });
         app.listen(port, () => console.log(`Server starts at port: ${port}`));
-        setInterval(function() {
-            https.get('https://kkshop.onrender.com/');
-        }, 780000)
     } catch(err) {
         console.log('Unable to connect DB: ', err);
     }
