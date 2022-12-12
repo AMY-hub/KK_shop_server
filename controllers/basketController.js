@@ -41,7 +41,7 @@ class BasketController {
             if(key) {
                 res.cookie('temporaryBasketKey', key, {
                 domain: process.env.NODE_ENV === 'production' 
-                ? 'kkshop.vercel.app' : 'localhost',
+                ? '.vercel.app' : 'localhost',
                 maxAge: 5 * 24 * 60 * 60 * 1000, //5days
             });
             }
