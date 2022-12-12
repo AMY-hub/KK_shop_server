@@ -13,11 +13,10 @@ const port = process.env.PORT || 8080;
 
 const whitelist = [
   'http://localhost',
-  'https://kk-shop.vercel.app',
+  'https://kkshop.vercel.app',
   'https://kk-shop-amy-hub.vercel.app',
   'https://kkshop-3avj.onrender.com',
   'https://kkshop.onrender.com',
-  'https://app.netlify.com',
   'https://kk-shop.netlify.app'
 ];
 
@@ -27,9 +26,7 @@ const corsOptions ={
         callback(null, originIsWhitelisted);
     }, 
     credentials:true,           
-    optionSuccessStatus:200,
-    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
-    allowedHeaders: 'accept, content-type, authorization, X-Requested-With, X-HTTP-Method-Override'
+    optionSuccessStatus:200
 }
 
 const app = express();
