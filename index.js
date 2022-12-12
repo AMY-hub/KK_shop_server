@@ -14,6 +14,7 @@ const port = process.env.PORT || 8080;
 const whitelist = [
   'http://localhost',
   'https://kkshop.vercel.app',
+  'https://kk-shop-server.vercel.app',
   'https://kk-shop-amy-hub.vercel.app',
   'https://kkshop-3avj.onrender.com',
   'https://kkshop.onrender.com',
