@@ -1,5 +1,4 @@
 require('dotenv').config();
-const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -13,11 +12,13 @@ const port = process.env.PORT || 8080;
 
 const corsOptions ={
     origin: [
-        'http://localhost',
+        'http://localhost:3000',
+        'http://localhost:8080',
         'https://kkshop.vercel.app',
         'https://kk-shop-server.vercel.app',
         'https://app.kkshop.site',
-        'https://api.kkshop.site'
+        'https://api.kkshop.site',
+        'https://yoomoney.ru'
     ], 
     credentials:true,           
     optionSuccessStatus:200,

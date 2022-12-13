@@ -9,6 +9,7 @@ router.post('/', orderController.createOrder);
 router.get('/', authCheck, orderController.getAllOrders);
 router.get('/:id', authCheck, orderController.getOrder);
 router.put('/:id', orderController.updateStatus);
+router.post('/update', orderController.updatePaymentStatus);
 router.delete('/:id', authCheck, roleCheck, orderController.deleteOrder);
 
 module.exports = router;

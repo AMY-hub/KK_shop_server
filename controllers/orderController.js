@@ -1,5 +1,6 @@
 const ApiError = require('../error/apiError');
 const orderService = require('../services/orderService');
+const paymentService = require('../services/paymentService');
 
 class OrderController {
 
@@ -35,13 +36,28 @@ class OrderController {
                 next(ApiError.badRequest());
             }
             let updated;
-            const {status, payment_status} = req.body;
+            const {status} = req.body;
             if(status) {
                 updated = await orderService.updateStatus(id, status);
             }
-            if(payment_status) {
-               updated = await orderService.updatePaymentStatus(id, payment_status);
+            return res.json(updated);
+        } catch(err) {
+            next(ApiError.internal(err.message));
+        }
+    }
+
+    async updatePaymentStatus(req, res, next) {
+        try {
+            const {event, object} = req.body;
+            if(!event || !object?.id) {
+                next(ApiError.badRequest());
             }
+            let updated;
+            if(event === 'payment.succeeded' 
+            && object.status === "succeeded") {
+                updated = await orderService.updatePaymentStatus(object?.id, 'оплачен')
+            }
+            res.status = 200;
             return res.json(updated);
         } catch(err) {
             next(ApiError.internal(err.message));

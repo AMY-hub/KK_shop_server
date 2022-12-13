@@ -133,6 +133,8 @@ const Order = sequelize.define('order', {
     delivery: {type: DataTypes.STRING, allowNull: false},
     status: {type: DataTypes.STRING, defaultValue: 'принят'},
     payment_status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'не оплачен'},
+    payment_id: {type: DataTypes.STRING, allowNull: true},
+    payment_confirmation: {type: DataTypes.STRING, allowNull: true},
     payment: {type: DataTypes.STRING, allowNull: false},
     phone: {type: DataTypes.STRING, allowNull: false},
     email: {type: DataTypes.STRING, allowNull: false},

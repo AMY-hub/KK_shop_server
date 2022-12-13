@@ -6,6 +6,7 @@ const {
     BonusCard,
     OrderCertificate,
     Certificate} = require('../models/models');
+const paymentService = require('./paymentService');
 
 class OrderService {
 
@@ -23,8 +24,18 @@ class OrderService {
         bonus_discount}) {
 
         const key = Math.round(parseInt(phone) + Date.now() / 10);
+
+        let onlinePayment;
+        let payment_url;
         let user;
         let newBonusPoints;
+
+        if(payment === 'онлайн') {
+            onlinePayment = await paymentService.createPayment(price, key);
+            payment_url = onlinePayment.confirmation.confirmation_url;
+            console.log('NEW PAYMENT', onlinePayment);
+        }
+
         if(userId) {
             user = await User.findOne({where: {id: userId}});
         }
@@ -40,6 +51,8 @@ class OrderService {
             address,
             delivery,
             payment,
+            payment_id: onlinePayment ? onlinePayment.id : null,
+            payment_confirmation: payment_url || null,
             price,
             delivery_price,
             bonus_discount
@@ -71,7 +84,10 @@ class OrderService {
         });
         }
 
-        return {orderNumber: newOrder.getDataValue('key'), points: newBonusPoints};
+        return {
+            orderNumber: newOrder.getDataValue('key'), 
+            points: newBonusPoints,
+            payment_url};
     }
 
     async updateStatus(id, status) {
@@ -87,8 +103,8 @@ class OrderService {
         return updated;
     }
 
-    async updatePaymentStatus(id, status) {
-        const updated = await Order.update({ payment_status: status }, {where: {id}});
+    async updatePaymentStatus(payment_id, status) {
+        const updated = await Order.update({ payment_status: status }, {where: {payment_id}});
         return updated;
     }
 
