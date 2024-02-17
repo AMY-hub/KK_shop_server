@@ -16,8 +16,7 @@ const corsOptions ={
         'http://localhost:8080',
         'https://kkshop.vercel.app',
         'https://kk-shop-server.vercel.app',
-        'https://app.kkshop.site',
-        'https://api.kkshop.site',
+        'https://app.kkstore.online',
         'https://yoomoney.ru'
     ], 
     credentials:true,           

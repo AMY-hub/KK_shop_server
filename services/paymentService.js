@@ -27,7 +27,7 @@ class PaymentService {
             confirmation: {
                 type: 'redirect',
                 return_url: process.env.NODE_ENV === "production" ?
-                'https://app.kkshop.site' : 'http://localhost:3000'
+                'https://app.kkstore.online' : 'http://localhost:3000'
             }, 
             metadata: {
                 key
